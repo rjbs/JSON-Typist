@@ -56,6 +56,7 @@ use Scalar::Util qw(blessed);
 
 {
   package JSON::Typist::Number;
+
   use overload '0+' => sub { ${ $_[0] } }, fallback => 1;
   sub new { my $x = $_[1]; bless \$x, $_[0] }
   sub TO_JSON { 0 + ${$_[0]} }
@@ -63,6 +64,7 @@ use Scalar::Util qw(blessed);
 
 {
   package JSON::Typist::String;
+
   use overload '""' => sub { ${ $_[0] } }, fallback => 1;
   sub new { my $x = $_[1]; bless \$x, $_[0] }
   sub TO_JSON { "${$_[0]}" }
@@ -94,6 +96,9 @@ undefined>.
 
 Note that property names, which becomes hash keys, do not become objects.  Hash
 keys are always strings.
+
+Strings become JSON::Typist::String objects. Numbers becomes
+JSON::Typist::Number objects.
 
 =cut
 
