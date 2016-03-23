@@ -116,14 +116,14 @@ sub apply_types {
     }
   }
 
+  return JSON::Typist::Number->new($data)
+    if blessed $data
+    && ($data->isa('Math::BigInt') || $data->isa('Math::BigFloat'));
+
   return [ map {; $self->apply_types($_) } @$data ] if _ARRAY0($data);
 
   return { map {; $_ => $self->apply_types($data->{$_}) } keys %$data }
     if _HASH0($data);
-
-  return JSON::Typist::Number->new($data)
-    if blessed $data
-    && ($data->isa('Math::BigInt') || $data->isa('Math::BigFloat'));
 
   return $data;
 }
