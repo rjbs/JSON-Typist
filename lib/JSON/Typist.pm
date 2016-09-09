@@ -136,6 +136,9 @@ This method deeply copies its input, replacing number and string objects with
 simple scalars that should become the proper JSON type.  Using this method
 should not be needed if your JSON decoder has C<convert_blessed> enabled.
 
+Right now, boolean objects are left in place, because they will be there from
+JSON's behavior, not JSON::Typist.  This may change in the future.
+
 =cut
 
 sub strip_types {
