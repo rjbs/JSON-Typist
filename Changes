@@ -1,6 +1,8 @@
 Revision history for JSON-Typist
 
 {{$NEXT}}
+        - now includes Test::Deep::JType for easy testing of JSON::Typist-typed
+          data
 
 0.001     2016-03-22 20:23:23-04:00 America/New_York
         - first release!
