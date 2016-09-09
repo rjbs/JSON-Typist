@@ -85,6 +85,12 @@ subtest "basic Test::Deep::JType" => sub {
     "jcmp_deeply built-ins",
   );
 
+  jcmp_deeply(
+    $typed,
+    { str => jstr(), num => jnum(), t => jtrue, f => jfalse, b => jbool },
+    "jcmp_deeply built-ins without values",
+  );
+
   # TODO: test failures, too
 };
 

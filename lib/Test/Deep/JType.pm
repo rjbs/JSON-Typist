@@ -80,28 +80,46 @@ you can write:
     },
   );
 
+If no argument is given, then the wrapped value isn't inspected.  C<jstr> just
+makes sure the value was a JSON string, without comparing it to anything.
+
 C<jtrue> and C<jfalse> are shorthand for C<jbool(1)> and C<jbool(0)>,
 respectively.
 
 =cut
 
-sub jstr  { Test::Deep::all( Test::Deep::obj_isa('JSON::Typist::String'),
-                             Test::Deep::str(@_)) }
+my $STRING = Test::Deep::obj_isa('JSON::Typist::String');
+my $NUMBER = Test::Deep::obj_isa('JSON::Typist::Number');
+my $BOOL   = Test::Deep::any(
+  Test::Deep::obj_isa('JSON::XS::Boolean'),
+  Test::Deep::obj_isa('JSON::PP::Boolean'),
+);
 
-sub jnum  { Test::Deep::all( Test::Deep::obj_isa('JSON::Typist::Number'),
-                             Test::Deep::num(@_)) }
-
-sub jbool {
-  Test::Deep::all(
-    Test::Deep::any(
-      Test::Deep::obj_isa('JSON::XS::Boolean'),
-      Test::Deep::obj_isa('JSON::PP::Boolean'),
-    ),
-    (@_ ? Test::Deep::bool(@_) : ()),
+sub jstr  {
+  return( @_
+          ? Test::Deep::all( $STRING, Test::Deep::str(@_) )
+          : $STRING
   );
 }
 
-sub jtrue  { jbool(1) }
-sub jfalse { jbool(0) }
+sub jnum  {
+  return( @_
+          ? Test::Deep::all( $NUMBER, Test::Deep::num(@_) )
+          : $NUMBER
+  );
+}
+
+sub jbool {
+  return( @_
+          ? Test::Deep::all( $BOOL, Test::Deep::bool(@_) )
+          : $BOOL
+  );
+}
+
+my $TRUE  = jbool(1);
+my $FALSE = jbool(0);
+
+sub jtrue  { $TRUE  }
+sub jfalse { $FALSE }
 
 1;
