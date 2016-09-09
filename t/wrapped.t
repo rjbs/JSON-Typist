@@ -4,6 +4,9 @@ use Test::More;
 use JSON::PP;
 use JSON::Typist;
 
+use Test::Deep;
+use Test::Deep::JType;
+
 subtest "basic functionality" => sub {
   my $content = q<{"number":5,"string":"5"}>;
 
@@ -54,6 +57,35 @@ subtest "bignums in effect" => sub {
 
   is($via_typed,    $content, "typed structured, inspected, does round trip");
   is($via_stripped, $content, "typed structured, stripped, also round trips");
+};
+
+subtest "basic Test::Deep::JType" => sub {
+  my $content = q<{
+    "num":5,
+    "str":"5",
+    "t":true,
+    "f":false,
+    "b":true
+  }>;
+
+  my $typist  = JSON::Typist->new;
+  my $json    = JSON::PP->new->convert_blessed->canonical;
+  my $payload = $json->decode( $content );
+  my $typed   = $typist->apply_types( $payload );
+
+  jcmp_deeply(
+    $typed,
+    { str => 5, num => 5, t => bool(1), f => bool(0), b => bool(1) },
+    "jcmp_deeply falls back to string compare",
+  );
+
+  jcmp_deeply(
+    $typed,
+    { str => jstr(5), num => jnum(5), t => jtrue, f => jfalse, b => jbool },
+    "jcmp_deeply built-ins",
+  );
+
+  # TODO: test failures, too
 };
 
 done_testing;

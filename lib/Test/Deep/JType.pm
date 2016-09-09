@@ -97,7 +97,7 @@ sub jbool {
       Test::Deep::obj_isa('JSON::XS::Boolean'),
       Test::Deep::obj_isa('JSON::PP::Boolean'),
     ),
-    (@_ ? bool(@_) : ()),
+    (@_ ? Test::Deep::bool(@_) : ()),
   );
 }
 
