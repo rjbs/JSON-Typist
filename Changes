@@ -1,6 +1,8 @@
 Revision history for JSON-Typist
 
 {{$NEXT}}
+        - jbool(), jstr() and jnum() can be used without an argument to allow
+          any value of the appropriate type
 
 0.002     2016-09-09 08:03:29-04:00 America/New_York
         - now includes Test::Deep::JType for easy testing of JSON::Typist-typed
