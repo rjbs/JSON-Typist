@@ -1,6 +1,8 @@
 Revision history for JSON-Typist
 
 {{$NEXT}}
+
+0.003     2016-11-07 09:31:25-05:00 America/New_York
         - jbool(), jstr() and jnum() can be used without an argument to allow
           any value of the appropriate type
 
