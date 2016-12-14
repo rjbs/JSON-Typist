@@ -1,6 +1,8 @@
 Revision history for JSON-Typist
 
 {{$NEXT}}
+
+0.004     2016-12-14 17:29:58-05:00 America/New_York
         - jbool(), jstr(), and jnum() can, if given specific values, be
           serialized into JSON with the appropriate type
 
