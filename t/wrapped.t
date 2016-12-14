@@ -94,4 +94,25 @@ subtest "basic Test::Deep::JType" => sub {
   # TODO: test failures, too
 };
 
+subtest "jtype routines for serialization" => sub {
+  my $struct = {
+    num => jnum(5),
+    str => jstr(5),
+    t   => jtrue(),
+    f   => jfalse(),
+  };
+
+  my $typist  = JSON::Typist->new;
+  my $json    = JSON::PP->new->convert_blessed->canonical;
+  my $content = $json->encode( $struct );
+  my $payload = $json->decode( $content );
+  my $typed   = $typist->apply_types( $payload );
+
+  jcmp_deeply(
+    $typed,
+    $struct,
+    "jtype tests serialize to self-match",
+  );
+};
+
 done_testing;

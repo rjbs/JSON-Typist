@@ -1,9 +1,11 @@
 Revision history for JSON-Typist
 
 {{$NEXT}}
+        - jbool(), jstr(), and jnum() can, if given specific values, be
+          serialized into JSON with the appropriate type
 
 0.003     2016-11-07 09:31:25-05:00 America/New_York
-        - jbool(), jstr() and jnum() can be used without an argument to allow
+        - jbool(), jstr(), and jnum() can be used without an argument to allow
           any value of the appropriate type
 
 0.002     2016-09-09 08:03:29-04:00 America/New_York

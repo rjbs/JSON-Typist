@@ -86,6 +86,12 @@ makes sure the value was a JSON string, without comparing it to anything.
 C<jtrue> and C<jfalse> are shorthand for C<jbool(1)> and C<jbool(0)>,
 respectively.
 
+As long as they've got a specific value to test for (that is, you called
+C<jstr("foo")> and not C<jstr()>, the tests produced by these routines will
+serialize via a C<convert_blessed>-enabled JSON encode into the appropriate
+types.  This makes it convenient to use these routines for building JSON as
+well as testing it.
+
 =cut
 
 my $STRING = Test::Deep::obj_isa('JSON::Typist::String');
@@ -95,31 +101,77 @@ my $BOOL   = Test::Deep::any(
   Test::Deep::obj_isa('JSON::PP::Boolean'),
 );
 
-sub jstr  {
-  return( @_
-          ? Test::Deep::all( $STRING, Test::Deep::str(@_) )
-          : $STRING
-  );
-}
-
-sub jnum  {
-  return( @_
-          ? Test::Deep::all( $NUMBER, Test::Deep::num(@_) )
-          : $NUMBER
-  );
-}
-
-sub jbool {
-  return( @_
-          ? Test::Deep::all( $BOOL, Test::Deep::bool(@_) )
-          : $BOOL
-  );
-}
+sub jstr  { Test::Deep::JType::jstr->_new(@_);  }
+sub jnum  { Test::Deep::JType::jnum->_new(@_);  }
+sub jbool { Test::Deep::JType::jbool->_new(@_); }
 
 my $TRUE  = jbool(1);
 my $FALSE = jbool(0);
 
 sub jtrue  { $TRUE  }
 sub jfalse { $FALSE }
+
+{
+  package Test::Deep::JType::jstr;
+
+  BEGIN { our @ISA = 'Test::Deep::All'; }
+  sub TO_JSON {
+    Carp::confess("can't use valueless jstr() test as JSON data")
+      unless defined $_[0]->{JType_value};
+    return "$_[0]->{JType_value}";
+  }
+  sub _new {
+    my $class = shift;
+    my $test = Test::Deep::all(
+      $STRING,
+      (@_ ?  Test::Deep::str($_[0]) : ()),
+    );
+    $test->{JType_value} = $_[0];
+    bless $test, $class;
+    return $test;
+  }
+}
+
+{
+  package Test::Deep::JType::jnum;
+
+  BEGIN { our @ISA = 'Test::Deep::All'; }
+  sub TO_JSON {
+    Carp::confess("can't use valueless jnum() test as JSON data")
+      unless defined $_[0]->{JType_value};
+    return 0 + $_[0]->{JType_value};
+  }
+  sub _new {
+    my $class = shift;
+    my $test = Test::Deep::all(
+      $NUMBER,
+      (@_ ?  Test::Deep::num($_[0]) : ()),
+    );
+    $test->{JType_value} = $_[0];
+    bless $test, $class;
+    return $test;
+  }
+}
+
+{
+  package Test::Deep::JType::jbool;
+
+  BEGIN { our @ISA = 'Test::Deep::All'; }
+  sub TO_JSON {
+    Carp::confess("can't use valueless jbool() test as JSON data")
+      unless defined $_[0]->{JType_value};
+    return $_[0]->{JType_value} ? \1 : \0;
+  }
+  sub _new {
+    my $class = shift;
+    my $test = Test::Deep::all(
+      $BOOL,
+      (@_ ?  Test::Deep::bool($_[0]) : ()),
+    );
+    $test->{JType_value} = $_[0];
+    bless $test, $class;
+    return $test;
+  }
+}
 
 1;
