@@ -161,4 +161,19 @@ sub strip_types {
   return $data;
 }
 
+=method number
+
+=method string
+
+  my $jnum = $typist->number(123);
+  my $jstr = $typist->string(123);
+
+These methods returns the same sorts of objects that would be returned in a
+typed JSON structure from C<apply_types>.
+
+=cut
+
+sub number { my ($self, $value) = @_; JSON::Typist::Number->new($value) }
+sub string { my ($self, $value) = @_; JSON::Typist::String->new($value) }
+
 1;
