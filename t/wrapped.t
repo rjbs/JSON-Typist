@@ -108,6 +108,11 @@ subtest "jtype routines for serialization" => sub {
   my $payload = $json->decode( $content );
   my $typed   = $typist->apply_types( $payload );
 
+  cmp_ok($struct->{num}, '==', 5, "our jnum compares with ==");
+  cmp_ok($struct->{str}, 'eq', 5, "our jstr compares with eq");
+  ok(  $struct->{t}, "our jtrue() is true");
+  ok(! $struct->{f}, "our jfalse() is false");
+
   jcmp_deeply(
     $typed,
     $struct,
@@ -115,15 +120,31 @@ subtest "jtype routines for serialization" => sub {
   );
 
   for my $test (
-    [ jnum  => jnum()   ],
-    [ jstr  => jstr()   ],
-    [ jbool => jbool()  ],
+    [ jnum  => jnum()  ],
+    [ jstr  => jstr()  ],
+    [ jbool => jbool() ],
   ) {
     my ($desc, $obj) = @$test;
-    my $lived = eval { $json->encode({ value => $obj }); 1 };
-    my $error = $@;
-    ok(! $lived, "can't serialize a $desc that has no value");
-    like($error, qr/valueless $desc/, "...and we get the expected error");
+
+    subtest "valueless $desc" => sub {
+      {
+        my $lived = eval { $json->encode({ value => $obj }); 1 };
+        my $error = $@;
+        ok(! $lived, "can't serialize a $desc that has no value");
+        like($error, qr/valueless $desc/, "...and we get the expected error");
+      }
+
+      for my $use (
+        [ string => sub { "$_[0]" }     ],
+        [ number => sub { 0 + $_[0] }   ],
+        [ bool   => sub { if($_[0]){} } ],
+      ) {
+        my $lived = eval { $use->[1]($obj); 1 };
+        my $error = $@;
+        ok(! $lived, "can't use a valuelss $desc as a $use->[0]");
+        like($error, qr/valueless/, "...with a sensible-ish error message");
+      }
+    }
   }
 };
 

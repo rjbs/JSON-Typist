@@ -116,6 +116,14 @@ sub jfalse { $FALSE }
 {
   package Test::Deep::JType::jstr;
 
+  use overload
+    '""'    => sub {
+      Carp::confess("can't use valueless jstr() as a string")
+        unless defined ${ $_[0] };
+      return ${ $_[0] };
+    },
+    fallback => 1;
+
   BEGIN { our @ISA = 'JSON::Typist::String'; }
   sub TO_JSON {
     Carp::confess("can't use valueless jstr() test as JSON data")
@@ -134,6 +142,14 @@ sub jfalse { $FALSE }
 {
   package Test::Deep::JType::jnum;
 
+  use overload
+    '0+'    => sub {
+      Carp::confess("can't use valueless jnum() as a number")
+        unless defined ${ $_[0] };
+      return ${ $_[0] };
+    },
+    fallback => 1;
+
   BEGIN { our @ISA = 'JSON::Typist::Number'; }
   sub TO_JSON {
     Carp::confess("can't use valueless jnum() test as JSON data")
@@ -151,6 +167,14 @@ sub jfalse { $FALSE }
 
 {
   package Test::Deep::JType::jbool;
+
+  use overload
+    'bool'    => sub {
+      Carp::confess("can't use valueless jbool() as a bool")
+        unless defined ${ $_[0] };
+      return ${ $_[0] };
+    },
+    fallback => 1;
 
   sub TO_JSON {
     Carp::confess("can't use valueless jbool() test as JSON data")
