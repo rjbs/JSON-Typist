@@ -3,6 +3,8 @@ use warnings;
 package Test::Deep::JType;
 # ABSTRACT: Test::Deep helpers for JSON::Typist data
 
+use JSON::PP ();
+use JSON::Typist ();
 use Test::Deep 1.123 (); # for LeafWrapper and obj~~re diagnostics
 
 use Exporter 'import';
@@ -101,9 +103,9 @@ my $BOOL   = Test::Deep::any(
   Test::Deep::obj_isa('JSON::PP::Boolean'),
 );
 
-sub jstr  { Test::Deep::JType::jstr->_new(@_);  }
-sub jnum  { Test::Deep::JType::jnum->_new(@_);  }
-sub jbool { Test::Deep::JType::jbool->_new(@_); }
+sub jstr  { Test::Deep::JType::jstr->new(@_);  }
+sub jnum  { Test::Deep::JType::jnum->new(@_);  }
+sub jbool { Test::Deep::JType::jbool->new(@_); }
 
 my $TRUE  = jbool(1);
 my $FALSE = jbool(0);
@@ -114,63 +116,58 @@ sub jfalse { $FALSE }
 {
   package Test::Deep::JType::jstr;
 
-  BEGIN { our @ISA = 'Test::Deep::All'; }
+  BEGIN { our @ISA = 'JSON::Typist::String'; }
   sub TO_JSON {
     Carp::confess("can't use valueless jstr() test as JSON data")
-      unless defined $_[0]->{JType_value};
-    return "$_[0]->{JType_value}";
+      unless defined ${ $_[0] };
+    return "${ $_[0] }";
   }
-  sub _new {
-    my $class = shift;
-    my $test = Test::Deep::all(
-      $STRING,
-      (@_ ?  Test::Deep::str($_[0]) : ()),
-    );
-    $test->{JType_value} = $_[0];
-    bless $test, $class;
-    return $test;
+
+  sub as_test_deep_cmp {
+    my ($self) = @_;
+    my $value = $$self;
+    return defined $value ? Test::Deep::all($STRING, Test::Deep::str($value))
+                          : $STRING;
   }
 }
 
 {
   package Test::Deep::JType::jnum;
 
-  BEGIN { our @ISA = 'Test::Deep::All'; }
+  BEGIN { our @ISA = 'JSON::Typist::Number'; }
   sub TO_JSON {
     Carp::confess("can't use valueless jnum() test as JSON data")
-      unless defined $_[0]->{JType_value};
-    return 0 + $_[0]->{JType_value};
+      unless defined ${ $_[0] };
+    return 0 + ${ $_[0] };
   }
-  sub _new {
-    my $class = shift;
-    my $test = Test::Deep::all(
-      $NUMBER,
-      (@_ ?  Test::Deep::num($_[0]) : ()),
-    );
-    $test->{JType_value} = $_[0];
-    bless $test, $class;
-    return $test;
+
+  sub as_test_deep_cmp {
+    my ($self) = @_;
+    my $value = $$self;
+    return defined $value ? Test::Deep::all($NUMBER, Test::Deep::num($value))
+                          : $NUMBER;
   }
 }
 
 {
   package Test::Deep::JType::jbool;
 
-  BEGIN { our @ISA = 'Test::Deep::All'; }
   sub TO_JSON {
     Carp::confess("can't use valueless jbool() test as JSON data")
-      unless defined $_[0]->{JType_value};
-    return $_[0]->{JType_value} ? \1 : \0;
+      unless defined ${ $_[0] };
+    return ${ $_[0] } ? \1 : \0;
   }
-  sub _new {
-    my $class = shift;
-    my $test = Test::Deep::all(
-      $BOOL,
-      (@_ ?  Test::Deep::bool($_[0]) : ()),
-    );
-    $test->{JType_value} = $_[0];
-    bless $test, $class;
-    return $test;
+
+  sub new {
+    my ($class, $value) = @_;
+    bless \$value, $class;
+  }
+
+  sub as_test_deep_cmp {
+    my ($self) = @_;
+    my $value = $$self;
+    return defined $value ? Test::Deep::all($BOOL, Test::Deep::bool($value))
+                          : $BOOL;
   }
 }
 
