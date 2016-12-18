@@ -113,6 +113,18 @@ subtest "jtype routines for serialization" => sub {
     $struct,
     "jtype tests serialize to self-match",
   );
+
+  for my $test (
+    [ jnum  => jnum()   ],
+    [ jstr  => jstr()   ],
+    [ jbool => jbool()  ],
+  ) {
+    my ($desc, $obj) = @$test;
+    my $lived = eval { $json->encode({ value => $obj }); 1 };
+    my $error = $@;
+    ok(! $lived, "can't serialize a $desc that has no value");
+    like($error, qr/valueless $desc/, "...and we get the expected error");
+  }
 };
 
 done_testing;
