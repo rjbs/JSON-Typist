@@ -5,7 +5,7 @@ package Test::Deep::JType;
 
 use JSON::PP ();
 use JSON::Typist ();
-use Test::Deep 1.123 (); # for LeafWrapper and obj~~re diagnostics
+use Test::Deep 1.126 (); # LeafWrapper, as_test_deep_cmp
 
 use Exporter 'import';
 our @EXPORT = qw( jcmp_deeply jstr jnum jbool jtrue jfalse );
