@@ -5,10 +5,11 @@ package Test::Deep::JType;
 
 use JSON::PP ();
 use JSON::Typist ();
+use Test::More ();
 use Test::Deep 1.126 (); # LeafWrapper, as_test_deep_cmp
 
 use Exporter 'import';
-our @EXPORT = qw( jcmp_deeply jstr jnum jbool jtrue jfalse );
+our @EXPORT = qw( jcmp_deeply jstr jnum jbool jtrue jfalse jexplain );
 
 =head1 OVERVIEW
 
@@ -96,6 +97,7 @@ well as testing it.
 
 =cut
 
+my $TYPIST = JSON::Typist->new;
 my $STRING = Test::Deep::obj_isa('JSON::Typist::String');
 my $NUMBER = Test::Deep::obj_isa('JSON::Typist::Number');
 my $BOOL   = Test::Deep::any(
@@ -193,6 +195,23 @@ sub jfalse { $FALSE }
     return defined $value ? Test::Deep::all($BOOL, Test::Deep::bool($value))
                           : $BOOL;
   }
+}
+
+=func jexplain
+
+This behaves like L<Test::More/"explain"> but strips json types first using
+L<JSON::Typist/"strip_types"> for less cluttered output.
+
+=cut
+
+sub jexplain {
+  my @arg = @_;
+
+  for my $ent (@arg) {
+    $ent = $TYPIST->strip_types($ent);
+  }
+
+  return Test::More::explain(@arg);
 }
 
 1;
