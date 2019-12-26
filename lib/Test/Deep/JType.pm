@@ -50,7 +50,7 @@ instead of also asserting that the found value must not be an object.
 
 sub jcmp_deeply {
   local $Test::Builder::Level = $Test::Builder::Level + 1;
-  local $Test::Deep::LeafWrapper = \&Test::Deep::str;
+  local $Test::Deep::LeafWrapper = sub { Test::Deep::JType::_String->new(@_) },
   Test::Deep::cmp_deeply(@_);
 }
 
@@ -112,6 +112,44 @@ my $FALSE = jbool(0);
 
 sub jtrue  { $TRUE  }
 sub jfalse { $FALSE }
+
+{
+  package
+    Test::Deep::JType::_String;
+
+  use Test::Deep::Cmp;
+
+  sub init
+  {
+    my $self = shift;
+
+    $self->{val} = shift;
+  }
+
+  sub descend
+  {
+    my $self = shift;
+    my $got = shift();
+
+    # If either is undef but not both this is a failure where
+    # as Test::Deep::String would just stringify the undef,
+    # throw a warning, and pass
+    if (defined($got) xor defined($self->{val})) {
+      return 0;
+    }
+
+    return $got eq $self->{val};
+  }
+
+  sub diag_message
+  {
+    my $self = shift;
+
+    my $where = shift;
+
+    return "Comparing $where as a string";
+  }
+}
 
 {
   package Test::Deep::JType::jstr;
