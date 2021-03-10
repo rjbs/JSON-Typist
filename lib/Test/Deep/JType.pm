@@ -129,7 +129,12 @@ sub jfalse { $FALSE }
   sub descend
   {
     my $self = shift;
-    my $got = shift();
+    my $got = shift;
+
+    # Stringify what we got for test output purposes. Otherwise,
+    # string overloading won't be called on $got, and we'll end up
+    # with 'JSON::Typist::String=SCALAR(0x...) in our test output
+    $self->data->{got} = $got . "" if defined $got;
 
     # If either is undef but not both this is a failure where
     # as Test::Deep::String would just stringify the undef,
