@@ -1,6 +1,10 @@
 Revision history for JSON-Typist
 
 {{$NEXT}}
+
+0.007     2021-05-03 11:41:01-04:00 America/New_York
+        - add JSON::Typist::DataPrinter, which provides jdump() for pretty
+          printing JSON::Typist-typed structs
         - sometimes when printing diagnostics, we would print
           "JSON::Typist::String=SCALAR(0x1234)" instead of "foo"; this has been
           fixed (thanks, Matthew Horsfall!)
