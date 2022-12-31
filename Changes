@@ -1,6 +1,8 @@
 Revision history for JSON-Typist
 
 {{$NEXT}}
+        - update packaging and metadata
+        - minimum required Perl is now v5.12
 
 0.007     2021-05-03 11:41:01-04:00 America/New_York
         - add JSON::Typist::DataPrinter, which provides jdump() for pretty
