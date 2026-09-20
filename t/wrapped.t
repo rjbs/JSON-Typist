@@ -91,6 +91,18 @@ subtest "basic Test::Deep::JType" => sub {
     "jcmp_deeply built-ins without values",
   );
 
+  jcmp_deeply(
+    JSON::Typist::Number->new(123),
+    JSON::Typist::Number->new(123),
+    "Number works as test",
+  );
+
+  jcmp_deeply(
+    JSON::Typist::String->new("abc"),
+    JSON::Typist::String->new("abc"),
+    "String works as test",
+  );
+
   # TODO: test failures, too
 };
 

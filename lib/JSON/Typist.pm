@@ -1,4 +1,4 @@
-use strict;
+use v5.12.0;
 use warnings;
 
 package JSON::Typist;
@@ -60,6 +60,15 @@ use Scalar::Util qw(blessed);
   use overload '0+' => sub { ${ $_[0] } }, fallback => 1;
   sub new { my $x = $_[1]; bless \$x, $_[0] }
   sub TO_JSON { 0 + ${$_[0]} }
+
+  sub as_test_deep_cmp {
+    my ($self) = @_;
+
+    no warnings 'once';
+    return $Test::Deep::LeafWrapper
+        ? $Test::Deep::LeafWrapper->($$self)
+        : Test::Deep::shallow($$self);
+   }
 }
 
 {
@@ -68,6 +77,15 @@ use Scalar::Util qw(blessed);
   use overload '""' => sub { ${ $_[0] } }, fallback => 1;
   sub new { my $x = $_[1]; bless \$x, $_[0] }
   sub TO_JSON { "${$_[0]}" }
+
+  sub as_test_deep_cmp {
+    my ($self) = @_;
+
+    no warnings 'once';
+    return $Test::Deep::LeafWrapper
+        ? $Test::Deep::LeafWrapper->($$self)
+        : Test::Deep::shallow($$self);
+   }
 }
 
 =method new
