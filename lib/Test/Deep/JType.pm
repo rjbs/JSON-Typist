@@ -50,7 +50,7 @@ instead of also asserting that the found value must not be an object.
 
 sub jcmp_deeply {
   local $Test::Builder::Level = $Test::Builder::Level + 1;
-  local $Test::Deep::LeafWrapper = sub { Test::Deep::JType::_String->new(@_) },
+  local $Test::Deep::LeafWrapper = sub { Test::Deep::JType::_String->new(@_) };
   Test::Deep::cmp_deeply(@_);
 }
 
